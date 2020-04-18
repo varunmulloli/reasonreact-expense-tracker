@@ -1,0 +1,1 @@
+ReactDOMRe.hydrateToElementWithId(<App />, "root");
