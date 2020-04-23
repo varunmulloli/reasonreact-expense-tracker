@@ -10,23 +10,20 @@ let extractURLFromRequest = (req: Express.Request.t) : ReasonReactRouter.url => 
   { path: path, hash: "", search: queryParams };
 }
 
-let renderHTML = (res: Express.Response.t, urlJson: Js.Json.t, dataJson: option(Js.Json.t)) => {
-  let stringifyJson = (json: Js.Json.t) : string => json |> Json.stringify |> Js.String.replaceByRe([%re "/</g"],"\\u003c");
-  let initialState: option(string) = Belt.Option.map(dataJson, stringifyJson);
-  let initialURL = stringifyJson(urlJson);
-  let content = ReactDOMServerRe.renderToString(<App initialState=initialState initialURL=Some(initialURL) />);
-  let htmlContent = Template.make(~content, ~initialState, ~initialURL, ());
+let renderHTML = (res: Express.Response.t, initialState: State.state) => {
+  let content = ReactDOMServerRe.renderToString(<App initialState=initialState />);
+  let encodedInitialState: string = initialState |> State.encodeState |> JsonHelper.stringify;
+  let htmlContent = Template.make(~content, ~initialState=encodedInitialState, ());
   Express.Response.sendString(htmlContent, res);
 };
 
 let loadDataAndRenderHTML = (_next, _req, res) : Js.Promise.t(Express.complete) => {
   let url: ReasonReactRouter.url = extractURLFromRequest(_req);
-  let urlJson: Js.Json.t = JsonHelper.encodeURL(url);
   let routeConfig: Routes.routeConfig = Routes.getRouteConfig(url);
 
-  switch(routeConfig.loadData) {
-    | Some(loadData) => Js.Promise.(loadData() |> then_(json => json |> renderHTML(res, urlJson) |> Js.Promise.resolve ))
-    | None => None |> renderHTML(res, urlJson) |> Js.Promise.resolve
+  switch(routeConfig.fetchData) {
+    | Some(fetchData) => Js.Promise.(fetchData(url) |> then_(state => state |> renderHTML(res) |> Js.Promise.resolve ))
+    | None => State.createEmptyState() |> renderHTML(res) |> Js.Promise.resolve
   };
 };
 
@@ -38,7 +35,6 @@ Express.Static.defaultOptions()
 loadDataAndRenderHTML
 |> Express.PromiseMiddleware.from
 |> Express.App.useOnPath(~path="/", app);
-
 
 let port = 3000;
 

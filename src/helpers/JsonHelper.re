@@ -1,7 +1,14 @@
-let encodeURL = (url: ReasonReactRouter.url) : Js.Json.t => Json.Encode.(
-  object_([
-    ("path", url.path |> list(string)),
-    ("hash", string(url.hash)),
-    ("search", string(url.search)),
-  ])
-);
+let emitErrorAsLogAndIgnore = (error: exn) => {
+  Js.Console.error(error);
+  None;
+};
+
+let parseWithoutError = (jsonString: string) : option(Js.Json.t) => 
+  try (Some(Json.parseOrRaise(jsonString))) {
+  | error => emitErrorAsLogAndIgnore(error);
+};
+
+let stringify = (json: Js.Json.t) : string => {
+  //TODO: Take care of XSS
+  Json.stringify(json) |> String.escaped;
+};

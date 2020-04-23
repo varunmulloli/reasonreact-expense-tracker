@@ -1,10 +1,8 @@
 [@react.component]
-let make = (~initialState: option(string), ~initialURL: option(string)) => {
+let make = (~initialState: State.state) => {
   let url = ReasonReactRouter.useUrl();
   let routeConfig: Routes.routeConfig = Routes.getRouteConfig(url);
-
   <div>
-    { React.string("Hello from Reason React") }
-    { routeConfig.component }
+    { routeConfig.component(initialState) }
   </div>
 };
