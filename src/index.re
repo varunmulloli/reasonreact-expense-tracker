@@ -1,3 +1,5 @@
+[@bs.module "emotion-server"] external renderStylesToString : string => string = "renderStylesToString";
+
 let app = Express.App.make();
 
 let extractURLFromRequest = (req: Express.Request.t) : ReasonReactRouter.url => {
@@ -12,8 +14,9 @@ let extractURLFromRequest = (req: Express.Request.t) : ReasonReactRouter.url => 
 
 let renderHTML = (res: Express.Response.t, initialState: State.state) => {
   let content = ReactDOMServerRe.renderToString(<App initialState=initialState />);
+  let contentWithStyles = renderStylesToString(content);
   let encodedInitialState: string = initialState |> State.encodeState |> JsonHelper.stringify;
-  let htmlContent = Template.make(~content, ~initialState=encodedInitialState, ());
+  let htmlContent = Template.make(~content=contentWithStyles, ~initialState=encodedInitialState, ());
   Express.Response.sendString(htmlContent, res);
 };
 

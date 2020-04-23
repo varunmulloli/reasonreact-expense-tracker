@@ -9,6 +9,9 @@ let parseWithoutError = (jsonString: string) : option(Js.Json.t) =>
 };
 
 let stringify = (json: Js.Json.t) : string => {
-  //TODO: Take care of XSS
-  Json.stringify(json) |> String.escaped;
+  Json.stringify(json) 
+  |> Js.String.replace("<","\\u003c") 
+  |> Js.String.replace(">","\\u003e") 
+  |> Js.String.replace("/","\\u002f") 
+  |> String.escaped;
 };
