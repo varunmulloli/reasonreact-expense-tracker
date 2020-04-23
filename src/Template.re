@@ -2,7 +2,7 @@ let make = (~content, ~initialState, ()) => {j|
   <!DOCTYPE html>
   <html>
     <head>
-      <title>Expense Tracker</title>
+      <title>Server Side Rendering</title>
       <link rel="shortcut icon" type="image/png" href="/dist/favicon.ico">
     </head>
     <body>
