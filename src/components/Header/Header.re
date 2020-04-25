@@ -1,23 +1,23 @@
 [@react.component]
-let make = (~activeRoute: Types.ActiveRoute.activeRoute) => {
+let make = (~activeRoute: RoutePage.page) => {
   let activeNavLink = Css.merge([HeaderCSS.navlink, HeaderCSS.navlinkActive]);
-  let navLinkClass = (route: Types.ActiveRoute.activeRoute) => {
-    (activeRoute === route) ? activeNavLink : HeaderCSS.navlink;
+  let navLinkClass = (page: RoutePage.page) => {
+    (activeRoute === page) ? activeNavLink : HeaderCSS.navlink;
   };
-  let pushRoute = (route: Types.ActiveRoute.activeRoute) => {
+  let pushRoute = (route: RoutePage.page) => {
     switch route {
-    | Types.ActiveRoute.AllPosts => ReasonReactRouter.push("/")
-    | Types.ActiveRoute.MyPosts => ReasonReactRouter.push("/my-posts")
+    | RoutePage.AllPosts => ReasonReactRouter.push("/")
+    | RoutePage.MyPosts => ReasonReactRouter.push("/my-posts")
     | _ => ReasonReactRouter.push("/404")
     };
   };
 
   <div className=HeaderCSS.headerContainer>
-    <div className=navLinkClass(Types.ActiveRoute.AllPosts) onClick=(_ => pushRoute(Types.ActiveRoute.AllPosts))>
+    <div className=navLinkClass(RoutePage.AllPosts) onClick=(_ => pushRoute(RoutePage.AllPosts))>
       <span className=HeaderCSS.navlinkText>{React.string("All Posts")}</span>
     </div>
 
-    <div className=navLinkClass(Types.ActiveRoute.MyPosts) onClick=(_ => pushRoute(Types.ActiveRoute.MyPosts))>
+    <div className=navLinkClass(RoutePage.MyPosts) onClick=(_ => pushRoute(RoutePage.MyPosts))>
       <span className=HeaderCSS.navlinkText>{React.string("My Posts")}</span>
     </div>
   </div>

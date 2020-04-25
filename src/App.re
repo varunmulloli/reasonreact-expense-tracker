@@ -1,9 +1,10 @@
 [@react.component]
 let make = (~initialState: option(State.state), ~url: ReasonReactRouter.url) => {
-  let routeConfig: Routes.routeConfig = Routes.getRouteConfig(url);
+  let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
+  let component: option(State.state) => React.element = RouteComponent.getComponentToRender(page);
 
   <div>
-    <Header activeRoute=routeConfig.activeRoute />
-    { routeConfig.component(initialState) }
+    <Header activeRoute=page />
+    { component(initialState) }
   </div>
 };

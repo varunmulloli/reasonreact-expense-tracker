@@ -22,9 +22,10 @@ let renderHTML = (res: Express.Response.t, url: ReasonReactRouter.url, initialSt
 
 let loadDataAndRenderHTML = (_next, _req, res) : Js.Promise.t(Express.complete) => {
   let url: ReasonReactRouter.url = extractURLFromRequest(_req);
-  let routeConfig: Routes.routeConfig = Routes.getRouteConfig(url);
+  let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
+  let dataToFetch: option(ReasonReactRouter.url => Js.Promise.t(State.state)) = RouteData.getDataToFetch(page);
 
-  switch(routeConfig.fetchData) {
+  switch(dataToFetch) {
     | Some(fetchData) => Js.Promise.(fetchData(url) |> then_(state => state |> renderHTML(res, url) |> Js.Promise.resolve ))
     | None => State.createEmptyState() |> renderHTML(res, url) |> Js.Promise.resolve
   };
