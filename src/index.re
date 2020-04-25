@@ -12,8 +12,8 @@ let extractURLFromRequest = (req: Express.Request.t) : ReasonReactRouter.url => 
   { path: path, hash: "", search: queryParams };
 }
 
-let renderHTML = (res: Express.Response.t, initialState: State.state) => {
-  let content = ReactDOMServerRe.renderToString(<App initialState=initialState />);
+let renderHTML = (res: Express.Response.t, url: ReasonReactRouter.url, initialState: State.state) => {
+  let content = ReactDOMServerRe.renderToString(<App initialState=Some(initialState) url=url />);
   let contentWithStyles = renderStylesToString(content);
   let encodedInitialState: string = initialState |> State.encodeState |> JsonHelper.stringify;
   let htmlContent = Template.make(~content=contentWithStyles, ~initialState=encodedInitialState, ());
@@ -25,8 +25,8 @@ let loadDataAndRenderHTML = (_next, _req, res) : Js.Promise.t(Express.complete) 
   let routeConfig: Routes.routeConfig = Routes.getRouteConfig(url);
 
   switch(routeConfig.fetchData) {
-    | Some(fetchData) => Js.Promise.(fetchData(url) |> then_(state => state |> renderHTML(res) |> Js.Promise.resolve ))
-    | None => State.createEmptyState() |> renderHTML(res) |> Js.Promise.resolve
+    | Some(fetchData) => Js.Promise.(fetchData(url) |> then_(state => state |> renderHTML(res, url) |> Js.Promise.resolve ))
+    | None => State.createEmptyState() |> renderHTML(res, url) |> Js.Promise.resolve
   };
 };
 

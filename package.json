@@ -2,7 +2,7 @@
   "name": "reasonreact-server-side-rendering",
   "version": "0.1.0",
   "scripts": {
-    "dev": "parcel build src/Client.bs.js -o client.js",
+    "dev": "parcel build src/Client.bs.js -o client.js --public-url /dist/",
     "build": "bsb -make-world",
     "start": "bsb -make-world -w -ws _ ",
     "clean": "bsb -clean-world",

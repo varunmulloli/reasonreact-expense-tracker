@@ -30,3 +30,5 @@ let encodeState = (stateRecord: state) : Js.Json.t => Json.Encode.(
     ("posts", stateRecord.posts |> Types.Posts.encodePosts),
   ])
 );
+
+let createStateFromPosts = (posts: list(Types.Posts.post)) => createState(~posts=posts, ());

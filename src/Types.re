@@ -1,3 +1,10 @@
+module ActiveRoute = {
+  type activeRoute = 
+  | AllPosts
+  | MyPosts
+  | Others;
+};
+
 module Posts = {
   type post = {
     userId: int,
