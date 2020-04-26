@@ -1,6 +1,7 @@
 [@react.component]
 let make = (~activeRoute: RoutePage.page) => {
   let activeNavLink = Css.merge([HeaderCSS.navlink, HeaderCSS.navlinkActive]);
+  //TODO: Change this shit
   let navLinkClass = (page: RoutePage.page) => {
     (activeRoute === page) ? activeNavLink : HeaderCSS.navlink;
   };

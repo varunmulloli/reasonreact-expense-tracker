@@ -1,5 +1,11 @@
+let navigateToPost = (postId: Types.Posts.postId) => {
+  ReasonReactRouter.push("/post/" ++ string_of_int(postId))
+};
+
 let postComponent = (index: int, post: Types.Posts.post) : React.element => {
-  <Post key=string_of_int(index) post=post />
+  <div className=AllPostsCSS.postContainer onClick=(_ => navigateToPost(post.id)) key=string_of_int(index)>
+    <Post post=post />
+  </div>
 };
 
 [@react.component]
@@ -13,11 +19,11 @@ let make = (~postsFromServer: option(list(Types.Posts.post))) => {
   let (posts: list(Types.Posts.post), setPosts) = React.useState(() => initialPosts);
   let url: ReasonReactRouter.url = ReasonReactRouter.useUrl();
   let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
-  let dataToFetch: option(ReasonReactRouter.url => Js.Promise.t(State.state)) = RouteData.getDataToFetch(page);
+  let dataToFetch: option(unit => Js.Promise.t(State.state)) = RouteData.getDataToFetch(page);
 
   let fetchPostsAndUpdateState = () : Js.Promise.t(unit) => {
     switch (dataToFetch) {
-    | Some(fetchData) => Js.Promise.(fetchData(url) |> then_((state: State.state) => setPosts(_ => state.posts) |> resolve ))
+    | Some(fetchData) => Js.Promise.(fetchData() |> then_((state: State.state) => setPosts(_ => state.posts) |> resolve ))
     | None => Js.Promise.resolve(setPosts(_ => []))
     };
   };
