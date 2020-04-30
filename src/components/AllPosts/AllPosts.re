@@ -1,3 +1,7 @@
+type dataState = 
+| Loading
+| Loaded;
+
 let navigateToPost = (postId: Types.Posts.postId) => {
   ReasonReactRouter.push("/post/" ++ string_of_int(postId))
 };
@@ -16,21 +20,27 @@ let make = (~postsFromServer: option(list(Types.Posts.post))) => {
     | None => []
     };
 
+  let (loading, setLoading) = React.useState(() => Loaded);
   let (posts: list(Types.Posts.post), setPosts) = React.useState(() => initialPosts);
   let url: ReasonReactRouter.url = ReasonReactRouter.useUrl();
   let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
   let dataToFetch: option(unit => Js.Promise.t(State.state)) = RouteData.getDataToFetch(page);
+  let dataFetchSuccess = (posts: list(Types.Posts.post)) : unit => {
+    setPosts(_ => posts); 
+    setLoading(_ => Loaded);
+  };
 
   let fetchPostsAndUpdateState = () : Js.Promise.t(unit) => {
     switch (dataToFetch) {
-    | Some(fetchData) => Js.Promise.(fetchData() |> then_((state: State.state) => setPosts(_ => state.posts) |> resolve ))
-    | None => Js.Promise.resolve(setPosts(_ => []))
+    | Some(fetchData) => Js.Promise.(fetchData() |> then_((state: State.state) => state.posts |> dataFetchSuccess |> resolve));
+    | None => [] |> dataFetchSuccess |> Js.Promise.resolve;
     };
   };
 
   let fetchNewPosts = () => {
+    setLoading(_ => Loading);
     switch postsFromServer {
-    | Some(_) => ignore(Js.Promise.resolve())
+    | Some(_) => ignore(Js.Promise.resolve(setLoading(_ => Loaded)))
     | None => ignore(fetchPostsAndUpdateState())
     };
     None;
@@ -38,7 +48,8 @@ let make = (~postsFromServer: option(list(Types.Posts.post))) => {
   
   React.useEffect1(fetchNewPosts, [|url|]);  
 
-  <div>
-    {RenderHelper.renderList(posts, postComponent)}
-  </div>
+  switch (loading) {
+  | Loading => React.string("Loading...")
+  | Loaded => RenderHelper.renderList(posts, postComponent)
+  };
 };

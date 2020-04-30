@@ -1,10 +1,9 @@
 open Css;
 
 let postContainer = style([
-  width(px(600)),
-  marginLeft(`auto),
-  marginRight(`auto),
+  marginTop(Theme.marginWidth),
   hover([
-    background(hex("f5f5f5")),
+    background(Theme.highlightColor),
+    cursor(`pointer),
   ]),
 ]);

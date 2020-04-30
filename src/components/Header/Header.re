@@ -14,6 +14,8 @@ let make = (~activeRoute: RoutePage.page) => {
   };
 
   <div className=HeaderCSS.headerContainer>
+    <div className=HeaderCSS.spacer></div>
+    
     <div className=navLinkClass(RoutePage.AllPosts) onClick=(_ => pushRoute(RoutePage.AllPosts))>
       <span className=HeaderCSS.navlinkText>{React.string("All Posts")}</span>
     </div>

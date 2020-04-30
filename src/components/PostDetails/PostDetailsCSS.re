@@ -1,11 +1,9 @@
 open Css;
 
 let postContainer = style([
-  width(px(600)),
-  marginLeft(`auto),
-  marginRight(`auto),
+  marginTop(Theme.marginWidth),
 ]);
 
 let commentsTitle = style([
-  marginTop(px(16)),
+  marginTop(Theme.marginWidth),
 ]);
