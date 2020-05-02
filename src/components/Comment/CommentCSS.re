@@ -3,7 +3,6 @@ open Css;
 let commentContainer = merge([
   Theme.border,
   style([
-    width(pct(80.)),
     marginTop(Theme.marginWidth),
     padding(Theme.paddingWidth),
   ]),

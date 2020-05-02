@@ -12,22 +12,23 @@ let extractURLFromRequest = (req: Express.Request.t) : ReasonReactRouter.url => 
   { path: path, hash: "", search: queryParams };
 }
 
-let renderHTML = (res: Express.Response.t, url: ReasonReactRouter.url, initialState: State.state) => {
-  let content = ReactDOMServerRe.renderToString(<App initialState=Some(initialState) url=url />);
-  let contentWithStyles = renderStylesToString(content);
-  let encodedInitialState: string = initialState |> State.encodeState |> JsonHelper.stringify;
-  let htmlContent = Template.make(~content=contentWithStyles, ~initialState=encodedInitialState, ());
+let renderHTML = (res: Express.Response.t, url: ReasonReactRouter.url, initialState: State.state, initialErrors: list(string)) => {
+  let content: string = ReactDOMServerRe.renderToString(<App initialState=Some(initialState) initialErrors=initialErrors url=url />);
+  let contentWithStyles: string = renderStylesToString(content);
+  let encodedInitialState: Js.Json.t = initialState |> State.encodeState;
+  let encodedInitialErrors: Js.Json.t = Json.Encode.(initialErrors |> list(string));
+  let htmlContent: string = Template.make(~content=contentWithStyles, ~initialState=encodedInitialState, ~initialErrors=encodedInitialErrors, ());
   Express.Response.sendString(htmlContent, res);
 };
 
 let loadDataAndRenderHTML = (_next, _req, res) : Js.Promise.t(Express.complete) => {
   let url: ReasonReactRouter.url = extractURLFromRequest(_req);
   let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
-  let dataToFetch: option(unit => Js.Promise.t(State.state)) = RouteData.getDataToFetch(page);
+  let dataToFetch: option(unit => Js.Promise.t(Types.uidata(State.state))) = RouteData.getDataToFetch(page);
 
   switch(dataToFetch) {
-    | Some(fetchData) => Js.Promise.(fetchData() |> then_(state => state |> renderHTML(res, url) |> Js.Promise.resolve ))
-    | None => State.createEmptyState() |> renderHTML(res, url) |> Js.Promise.resolve
+    | Some(fetchData) => Js.Promise.(fetchData() |> then_(((state: State.state, errors: list(string))) => renderHTML(res, url, state, errors) |> resolve ))
+    | None => renderHTML(res, url, State.createEmptyState(), []) |> Js.Promise.resolve
   };
 };
 

@@ -1,3 +1,14 @@
+type result('a) = Belt.Result.t('a, string);
+type future('a) = Js.Promise.t(result('a));
+type uidata('a) = ('a, list(string));
+
+type dataState = 
+| Loading
+| Loaded;
+
+type setState('a) = ('a => 'a) => unit;
+
+//TODO: Catch decode errors 
 module Posts = {
   type userId = int;
   type postId = int;
@@ -34,14 +45,6 @@ module Posts = {
   let encodePosts = (posts: list(post)) : Js.Json.t => Json.Encode.(
     posts |> list(encodePost)
   );
-
-  let extractPostsFromJson = (json: option(Js.Json.t)): list(post) => {
-    let maybePosts: option(list(post)) = Belt.Option.map(json, decodePosts);
-    switch maybePosts {
-      | Some(p) => p
-      | None => []
-    };
-  };
 };
 
 module Comments = {
@@ -83,14 +86,6 @@ module Comments = {
   let encodeComments = (posts: list(comment)) : Js.Json.t => Json.Encode.(
     posts |> list(encodeComment)
   );
-
-  let extractCommentsFromJson = (json: option(Js.Json.t)): list(comment) => {
-    let maybeComments: option(list(comment)) = Belt.Option.map(json, decodeComments);
-    switch maybeComments {
-      | Some(c) => c
-      | None => []
-    };
-  };
 };
 
 module PostDetails = {

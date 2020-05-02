@@ -1,13 +1,10 @@
 [%raw "require('isomorphic-fetch')"];
 
-type response = Js.Promise.t(option(Js.Json.t));
-
-//TODO: Log error
-let makeRequest = (url: string) : response => {
+let makeRequest = (url: string) : Types.future(Js.Json.t) => {
   Js.Promise.(
     Fetch.fetch(url)
-    |> then_(Fetch.Response.json)
-    |> then_(jsonResponse => Js.Promise.resolve(Some(jsonResponse)))
-    |> catch(_err => Js.Promise.resolve(None))
+    |> then_((res: Fetch.Response.t) => Fetch.Response.ok(res) ? Fetch.Response.json(res) : Js.Exn.raiseError(Fetch.Response.statusText(res)))
+    |> then_((json: Js.Json.t) => resolve(Belt.Result.Ok(json)))
+    |> catch(_ => resolve(Belt.Result.Error("Error in fetching data: " ++ url)))
   );
 };

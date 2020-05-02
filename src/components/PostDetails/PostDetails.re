@@ -2,40 +2,41 @@ let commentComponent = (index: int, comment: Types.Comments.comment) : React.ele
   <Comment key=string_of_int(index) comment=comment />
 };
 
-let renderPostDetails = (postDetails: Types.PostDetails.postDetails) : React.element => {
+let renderPostDetailsComponent = (postDetails: Types.PostDetails.postDetails) : React.element => {
   <div className=PostDetailsCSS.postContainer>
     <Post post=postDetails.post />
     <div className=PostDetailsCSS.commentsTitle>{React.string("Comments")}</div>
-    {RenderHelper.renderList(postDetails.comments, commentComponent)}
+    {ComponentHelper.renderList(postDetails.comments, commentComponent)}
   </div>
+};
+
+let renderPostDetails = (maybePostDetails: option(Types.PostDetails.postDetails)) : React.element => {
+  switch (maybePostDetails) {
+  | Some(postDetails) => renderPostDetailsComponent(postDetails)
+  | None => React.string("Couldn't find post")
+  };
 };
 
 [@react.component]
 let make = (~postDetailsFromServer: option(Types.PostDetails.postDetails)) => {
-  let (postDetails, setPostDetails) = React.useState(() => postDetailsFromServer);
   let url: ReasonReactRouter.url = ReasonReactRouter.useUrl();
-  let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
-  let dataToFetch: option(unit => Js.Promise.t(State.state)) = RouteData.getDataToFetch(page);
-
-  let fetchPostDetailsAndUpdateState = () : Js.Promise.t(unit) => {
-    switch (dataToFetch) {
-    | Some(fetchData) => Js.Promise.(fetchData() |> then_((state: State.state) => setPostDetails(_ => state.postDetails) |> resolve ))
-    | None => Js.Promise.resolve(setPostDetails(_ => None))
-    };
-  };
-
-  let fetchNewPostDetails = () => {
+  
+  let (dataState: Types.dataState, setDataState: Types.setState(Types.dataState)) = React.useState(() => Types.Loaded);
+  let (errors: list(string), setErrors: Types.setState(list(string))) = React.useState(() => []);
+  let (postDetails: option(Types.PostDetails.postDetails), setPostDetails: Types.setState(option(Types.PostDetails.postDetails))) = React.useState(() => postDetailsFromServer);
+  
+  let setPostDetailsFromState = (state: State.state) : unit => setPostDetails(_ => state.postDetails);
+  
+  React.useEffect1(() => {
     switch postDetailsFromServer {
     | Some(_) => ignore(Js.Promise.resolve())
-    | None => ignore(fetchPostDetailsAndUpdateState())
+    | None => ignore(ComponentHelper.fetchDataAndUpdateState(url, setPostDetailsFromState, setDataState, setErrors))
     };
     None;
-  };
-  
-  React.useEffect1(fetchNewPostDetails, [|url|]);  
+  }, [|url|]);  
 
-  switch (postDetails) {
-  | Some(pd) => renderPostDetails(pd)
-  | None => React.string("Couldn't find post")
+  switch (dataState) {
+  | Loading => React.string("Loading...")
+  | Loaded => renderPostDetails(postDetails);
   };
 };

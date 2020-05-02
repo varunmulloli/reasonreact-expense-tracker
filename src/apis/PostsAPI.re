@@ -1,20 +1,22 @@
-let fetchAllPosts = () : Js.Promise.t(list(Types.Posts.post)) => {
-  Js.Promise.(
-    APIHelper.makeRequest(Constants.baseURL ++ "/posts")
-    |> then_(json => json |> Types.Posts.extractPostsFromJson |> resolve)
-  );
+let decodePostsFromJson = (json: Types.result(Js.Json.t)) : Types.future(list(Types.Posts.post)) => {
+  Belt.Result.map(json, Types.Posts.decodePosts) |> Js.Promise.resolve;
 };
 
-let fetchMyPosts = () : Js.Promise.t(list(Types.Posts.post)) => {
-  Js.Promise.(
-    APIHelper.makeRequest(Constants.baseURL ++ "/posts?userId=3")
-    |> then_(json => json |> Types.Posts.extractPostsFromJson |> resolve)
-  );
+let decodePostFromJson = (json: Types.result(Js.Json.t)) : Types.future(Types.Posts.post) => {
+  Belt.Result.map(json, Types.Posts.decodePost) |> Js.Promise.resolve;
 };
 
-let fetchPost = (postId: Types.Posts.postId) : Js.Promise.t(option(Types.Posts.post)) => {
-  Js.Promise.(
-    APIHelper.makeRequest(Constants.baseURL ++ "/posts/" ++ string_of_int(postId))
-    |> then_(json => Belt.Option.map(json, Types.Posts.decodePost) |> resolve)
-  );
+let fetchAllPosts = () : Types.future(list(Types.Posts.post)) => {
+  APIHelper.makeRequest(Constants.baseURL ++ "/posts") 
+  |> Js.Promise.then_(decodePostsFromJson);
+};
+
+let fetchPostsForUser = (userId: Types.Posts.userId) : Types.future(list(Types.Posts.post)) => {
+  APIHelper.makeRequest(Constants.baseURL ++ "/posts?userId=" ++ string_of_int(userId)) 
+  |> Js.Promise.then_(decodePostsFromJson);
+};
+
+let fetchPost = (postId: Types.Posts.postId) : Types.future(Types.Posts.post) => {
+  APIHelper.makeRequest(Constants.baseURL ++ "/posts/" ++ string_of_int(postId)) 
+  |> Js.Promise.then_(decodePostFromJson);
 };

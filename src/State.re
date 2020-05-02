@@ -4,16 +4,10 @@ type state = {
 };
 
 let createState = (~posts=?, ~postDetails=?, ()) : state => {
-  let newPosts = switch posts {
-    | Some(p) => p
-    | None => []
-  };
-
-  let newState: state = {
-    posts: newPosts,
+  {
+    posts: GenericHelper.flattenOptionOfList(posts),
     postDetails: postDetails,
   };
-  newState;
 };
 
 let decodeState = (json: Js.Json.t) : state => Json.Decode.{

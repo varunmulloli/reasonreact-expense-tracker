@@ -1,10 +1,12 @@
 [@react.component]
-let make = (~initialState: option(State.state), ~url: ReasonReactRouter.url) => {
+let make = (~initialState: option(State.state), ~initialErrors: list(string), ~url: ReasonReactRouter.url) => {
   let page: RoutePage.page = RoutePage.getCorrespondingPage(url);
-  let component: option(State.state) => React.element = RouteComponent.getComponentToRender(page);
+  let component: (option(State.state), list(string)) => React.element = RouteComponent.getComponentToRender(page);
 
-  <div className=AppCss.appContainer>
+  <div className=AppCss.container>
     <Header activeRoute=page />
-    { component(initialState) }
+    <div className=AppCss.contents>
+      { component(initialState, initialErrors) }
+    </div>
   </div>
 };
