@@ -27,7 +27,7 @@ module ClientApp = {
     let initialErrors: list(string) = getInitialErrors();
 
     React.useEffect0(() => {
-      // ignore(deleteInitialData());
+      ignore(deleteInitialData());
       None;
     });  
 

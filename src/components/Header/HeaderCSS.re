@@ -19,8 +19,11 @@ let navlink = style([
   marginLeft(Theme.marginWidth),
 ]);
 
-let navlinkActive = style([
-  textDecoration(`underline),
+let navlinkActive = merge([
+  navlink,
+  style([
+    textDecoration(`underline),
+  ]),
 ]);
 
 let navlinkText = style([
