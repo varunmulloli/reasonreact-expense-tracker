@@ -1,5 +1,5 @@
 let decodeCommentsFromJson = (json: Types.result(Js.Json.t)) : Types.future(list(Types.Comments.comment)) => {
-  Belt.Result.map(json, Types.Comments.decodeComments) |> Js.Promise.resolve;
+  Belt.Result.flatMap(json, Types.Comments.decodeComments) |> Js.Promise.resolve;
 };
 
 let fetchCommentsForPost = (postId: Types.Posts.postId) : Types.future(list(Types.Comments.comment)) => {

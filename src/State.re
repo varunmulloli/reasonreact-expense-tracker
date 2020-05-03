@@ -10,9 +10,15 @@ let createState = (~posts=?, ~postDetails=?, ()) : state => {
   };
 };
 
-let decodeState = (json: Js.Json.t) : state => Json.Decode.{
-  posts: json |> field("posts", Types.Posts.decodePosts),
-  postDetails: json |> optional(field("postDetails", Types.PostDetails.decodePostDetails)),
+let decodeStateUnsafe = (json: Js.Json.t) : state => Json.Decode.{
+  posts: json |> field("posts", Types.Posts.decodePostsUnsafe),
+  postDetails: json |> optional(field("postDetails", Types.PostDetails.decodePostDetailsUnsafe)),
+};
+
+let decodeState = (json: Js.Json.t) : Types.result(state) => {
+  try (Belt.Result.Ok(decodeStateUnsafe(json))) {
+  | _ => Belt.Result.Error("Error in decoding JSON to: state")
+  };
 };
 
 let encodeState = (stateRecord: state) : Js.Json.t => Json.Encode.(

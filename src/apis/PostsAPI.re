@@ -1,9 +1,9 @@
 let decodePostsFromJson = (json: Types.result(Js.Json.t)) : Types.future(list(Types.Posts.post)) => {
-  Belt.Result.map(json, Types.Posts.decodePosts) |> Js.Promise.resolve;
+  Belt.Result.flatMap(json, Types.Posts.decodePosts) |> Js.Promise.resolve;
 };
 
 let decodePostFromJson = (json: Types.result(Js.Json.t)) : Types.future(Types.Posts.post) => {
-  Belt.Result.map(json, Types.Posts.decodePost) |> Js.Promise.resolve;
+  Belt.Result.flatMap(json, Types.Posts.decodePost) |> Js.Promise.resolve;
 };
 
 let fetchAllPosts = () : Types.future(list(Types.Posts.post)) => {

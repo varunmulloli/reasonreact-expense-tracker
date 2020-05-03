@@ -8,7 +8,6 @@ type dataState =
 
 type setState('a) = ('a => 'a) => unit;
 
-//TODO: Catch decode errors 
 module Posts = {
   type userId = int;
   type postId = int;
@@ -22,11 +21,17 @@ module Posts = {
     body: postBody,
   };
 
-  let decodePost = (json: Js.Json.t) : post => Json.Decode.{
+  let decodePostUnsafe = (json: Js.Json.t) : post => Json.Decode.{
     userId: json |> field("userId", int),
     id: json |> field("id", int),
     title: json |> field("title", string),
     body: json |> field("body", string),
+  };
+
+  let decodePost = (json: Js.Json.t) : result(post) => {
+    try (Belt.Result.Ok(decodePostUnsafe(json))) {
+    | _ => Belt.Result.Error("Error in decoding JSON to: post")
+    };
   };
 
   let encodePost = (postItem: post) : Js.Json.t => Json.Encode.(
@@ -38,9 +43,15 @@ module Posts = {
     ])
   );
 
-  let decodePosts = (json: Js.Json.t) : list(post) => Json.Decode.(
-    json |> list(decodePost)
+  let decodePostsUnsafe = (json: Js.Json.t) : list(post) => Json.Decode.(
+    json |> list(decodePostUnsafe)
   );
+
+  let decodePosts = (json: Js.Json.t) : result(list(post)) => {
+    try (Belt.Result.Ok(decodePostsUnsafe(json))) {
+    | _ => Belt.Result.Error("Error in decoding JSON to: list(post)")
+    };
+  };
 
   let encodePosts = (posts: list(post)) : Js.Json.t => Json.Encode.(
     posts |> list(encodePost)
@@ -61,12 +72,18 @@ module Comments = {
     body: commentBody,
   };
 
-  let decodeComment = (json: Js.Json.t) : comment => Json.Decode.{
+  let decodeCommentUnsafe = (json: Js.Json.t) : comment => Json.Decode.{
     postId: json |> field("postId", int),
     id: json |> field("id", int),
     name: json |> field("name", string),
     email: json |> field("email", string),
     body: json |> field("body", string),
+  };
+
+  let decodeComment = (json: Js.Json.t) : result(comment) => {
+    try (Belt.Result.Ok(decodeCommentUnsafe(json))) {
+    | _ => Belt.Result.Error("Error in decoding JSON to: comment")
+    };
   };
 
   let encodeComment = (commentItem: comment) : Js.Json.t => Json.Encode.(
@@ -79,9 +96,15 @@ module Comments = {
     ])
   );
 
-  let decodeComments = (json: Js.Json.t) : list(comment) => Json.Decode.(
-    json |> list(decodeComment)
+  let decodeCommentsUnsafe = (json: Js.Json.t) : list(comment) => Json.Decode.(
+    json |> list(decodeCommentUnsafe)
   );
+
+  let decodeComments = (json: Js.Json.t) : result(list(comment)) => {
+    try (Belt.Result.Ok(decodeCommentsUnsafe(json))) {
+    | _ => Belt.Result.Error("Error in decoding JSON to: list(comment)")
+    };
+  };
 
   let encodeComments = (posts: list(comment)) : Js.Json.t => Json.Encode.(
     posts |> list(encodeComment)
@@ -94,9 +117,15 @@ module PostDetails = {
     comments: list(Comments.comment),
   };
 
-  let decodePostDetails = (json: Js.Json.t) : postDetails => Json.Decode.{
-    post: json |> field("post", Posts.decodePost),
-    comments: json |> field("comments", Comments.decodeComments),
+  let decodePostDetailsUnsafe = (json: Js.Json.t) : postDetails => Json.Decode.{
+    post: json |> field("post", Posts.decodePostUnsafe),
+    comments: json |> field("comments", Comments.decodeCommentsUnsafe),
+  };
+
+  let decodePostDetails = (json: Js.Json.t) : result(postDetails) => {
+    try (Belt.Result.Ok(decodePostDetailsUnsafe(json))) {
+    | _ => Belt.Result.Error("Error in decoding JSON to: postDetails")
+    };
   };
 
   let encodePostDetails = (postDetailsItem: postDetails) : Js.Json.t => Json.Encode.(
