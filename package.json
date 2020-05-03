@@ -6,7 +6,7 @@
     "bundle": "parcel watch src/Client.bs.js -o client.js --public-url /dist/",
     "clean": "bsb -clean-world",
     "dev": "npm-run-all --parallel watch bundle",
-    "server": "node src/index.bs.js",
+    "server": "nodemon --watch src src/index.bs.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "bsb -make-world -w -ws _ "
   },
@@ -27,6 +27,7 @@
   "devDependencies": {
     "bs-platform": "^6.2.1",
     "bsb-js": "^1.1.7",
+    "nodemon": "^2.0.3",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.12.4"
   }
