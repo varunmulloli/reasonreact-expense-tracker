@@ -1,5 +1,5 @@
 let navigateToPost = (postId: Types.Posts.postId) => {
-  ReasonReactRouter.push("/post/" ++ string_of_int(postId))
+  RoutePage.Post(postId) |> RoutePage.pageURL |> ReasonReactRouter.push;
 };
 
 let postComponent = (index: int, post: Types.Posts.post) : React.element => {

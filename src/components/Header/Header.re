@@ -34,13 +34,8 @@ let getNavLinks = (activeRoute: RoutePage.page) : list(navLink) => {
   };
 };
 
-//TODO: add constants for URLs
 let pushRoute = (route: RoutePage.page) => {
-  switch route {
-  | RoutePage.AllPosts => ReasonReactRouter.push("/")
-  | RoutePage.MyPosts => ReasonReactRouter.push("/my-posts")
-  | _ => ReasonReactRouter.push("/404")
-  };
+  route |> RoutePage.pageURL |> ReasonReactRouter.push;
 };
 
 let navLinkComponent = (index: int, navLink: navLink) : React.element => {
