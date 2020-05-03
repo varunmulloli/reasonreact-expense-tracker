@@ -18,11 +18,11 @@ let renderPostDetails = (maybePostDetails: option(Types.PostDetails.postDetails)
 };
 
 [@react.component]
-let make = (~postDetailsFromServer: option(Types.PostDetails.postDetails)) => {
+let make = (~postDetailsFromServer: option(Types.PostDetails.postDetails), ~errorsFromServer: list(string)) => {
   let url: ReasonReactRouter.url = ReasonReactRouter.useUrl();
   
   let (dataState: Types.dataState, setDataState: Types.setState(Types.dataState)) = React.useState(() => Types.Loaded);
-  let (errors: list(string), setErrors: Types.setState(list(string))) = React.useState(() => []);
+  let (errors: list(string), setErrors: Types.setState(list(string))) = React.useState(() => errorsFromServer);
   let (postDetails: option(Types.PostDetails.postDetails), setPostDetails: Types.setState(option(Types.PostDetails.postDetails))) = React.useState(() => postDetailsFromServer);
   
   let setPostDetailsFromState = (state: State.state) : unit => setPostDetails(_ => state.postDetails);
@@ -35,8 +35,13 @@ let make = (~postDetailsFromServer: option(Types.PostDetails.postDetails)) => {
     None;
   }, [|url|]);  
 
-  switch (dataState) {
-  | Loading => React.string("Loading...")
-  | Loaded => renderPostDetails(postDetails);
-  };
+  <>
+    {
+      switch (dataState) {
+      | Loading => React.string("Loading...")
+      | Loaded => renderPostDetails(postDetails);
+      };
+    }
+    <Errors errors=errors />
+  </>
 };

@@ -1,14 +1,14 @@
 let renderPosts = (maybeState: option(State.state), errors: list(string)) : React.element => {
   switch maybeState {
-  | Some(state) => <AllPosts postsFromServer=Some(state.posts) />
-  | None => <AllPosts postsFromServer=None />
+  | Some(state) => <AllPosts postsFromServer=Some(state.posts) errorsFromServer=errors />
+  | None => <AllPosts postsFromServer=None errorsFromServer=errors />
   };
 };
 
 let renderPostAndComments = (maybeState: option(State.state), errors: list(string)) : React.element => {
   switch maybeState {
-  | Some(state) => <PostDetails postDetailsFromServer=state.postDetails />
-  | None => <PostDetails postDetailsFromServer=None />
+  | Some(state) => <PostDetails postDetailsFromServer=state.postDetails errorsFromServer=errors />
+  | None => <PostDetails postDetailsFromServer=None errorsFromServer=errors />
   };
 };
 

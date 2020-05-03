@@ -9,12 +9,12 @@ let postComponent = (index: int, post: Types.Posts.post) : React.element => {
 };
 
 [@react.component]
-let make = (~postsFromServer: option(list(Types.Posts.post))) => {
+let make = (~postsFromServer: option(list(Types.Posts.post)), ~errorsFromServer: list(string)) => {
   let url: ReasonReactRouter.url = ReasonReactRouter.useUrl();
   let initialPosts: list(Types.Posts.post) = GenericHelper.flattenOptionOfList(postsFromServer);
 
   let (dataState: Types.dataState, setDataState: Types.setState(Types.dataState)) = React.useState(() => Types.Loaded);
-  let (errors: list(string), setErrors: Types.setState(list(string))) = React.useState(() => []);
+  let (errors: list(string), setErrors: Types.setState(list(string))) = React.useState(() => errorsFromServer);
   let (posts: list(Types.Posts.post), setPosts: Types.setState(list(Types.Posts.post))) = React.useState(() => initialPosts);
   
   let setPostsFromState = (state: State.state) : unit => setPosts(_ => state.posts);
@@ -27,8 +27,13 @@ let make = (~postsFromServer: option(list(Types.Posts.post))) => {
     None;
   }, [|url|]);  
 
-  switch (dataState) {
-  | Types.Loading => React.string("Loading...")
-  | Types.Loaded => ComponentHelper.renderList(posts, postComponent)
-  };
+  <>
+    {
+      switch (dataState) {
+      | Types.Loading => React.string("Loading...")
+      | Types.Loaded => ComponentHelper.renderList(posts, postComponent)
+      };
+    }
+    <Errors errors=errors />
+  </>
 };
